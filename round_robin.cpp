@@ -65,10 +65,11 @@ int main(){
 				process_list.at(j-1)= temp;
 			}
 			
-	if(process_list.at(0).arrival_time > 0){
-		idle.completion_time = process_list.at(0).arrival_time;
-		gantt.push_back(idle);
-	}
+	if(process_list.at(0).arrival_time > 0)
+		idle.completion_time = process_list.at(0).arrival_time;	
+	
+	
+	gantt.push_back(idle);
 	
 	ready_queue.push(&process_list.at(0));
 	
@@ -157,8 +158,10 @@ int main(){
 	reverse( gantt.begin(), gantt.end() );
 	cout << "\n\nGantt Chart:\n ";
 	for (Process& p: gantt)
-		if (p.process_id == -1)
-			printf("   idle |");
+		if (p.process_id == -1){
+			if (p.completion_time != 0)
+				printf("   idle |");
+		}
 		else
 			printf("     P%d |", p.process_id);
 	
@@ -166,7 +169,8 @@ int main(){
 	cout << endl << 0;
 	
 	for (Process& p: gantt)
-		printf("     %2d |", p.completion_time);
+		if (p.completion_time)
+			printf("     %2d |", p.completion_time);
 	
 	
 	
