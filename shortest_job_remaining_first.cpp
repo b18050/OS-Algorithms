@@ -1,13 +1,10 @@
 #include<iostream>
-#include<queue>
 #include<vector>
 #include<algorithm>
 
-#define TQ 2
-#define NB_PROCESS 7
+#define NB_PROCESS 6
 
 using namespace std;
-
 
 class Process{
 	public:
@@ -32,33 +29,34 @@ class Process{
 		}
 };
 
+
 int main(){
-	
-	int process_id[] = {0, 1, 2, 3, 4, 5, 6};
-	int arrival_time[] = {9, 1, 4, 5, 2, 30, 29};
-	int burst_time[] = {10, 2, 1, 5, 7, 3, 6};
+	int process_id[] = {0, 1, 2, 3, 4, 5};
+	int arrival_time[] = {2, 1, 2, 5, 25, 24};
+	int burst_time[] = {6, 3, 2, 5, 2, 7};
 	
 	vector<Process> process_list;
-	
-	queue<Process*> ready_queue;
 	vector<Process> gantt;
-
-
+	
+	vector<Process*> ready_vector;
+	
 	Process idle(-1,0,0);
 
-
+	
+	
 	for(int i=0; i<NB_PROCESS; i++)
 		process_list.push_back(Process(process_id[i], arrival_time[i], burst_time[i]));
 
-
-// Bubble sort on arrival_time:
+		
+	// Bubble sort on arrival_time:
 	for(int i=0; i<NB_PROCESS; i++)
 		for (int j=1; j<NB_PROCESS-i; j++)
 			if (process_list.at(j).arrival_time < process_list.at(j-1).arrival_time){
 				Process temp = process_list.at(j);
 				process_list.at(j) = process_list.at(j-1);
-				process_list.at(j-1)= temp;
+				process_list.at(j-1) = temp;
 			}
+			
 			
 	if(process_list.at(0).arrival_time > 0)
 		idle.completion_time = process_list.at(0).arrival_time;	
@@ -66,49 +64,57 @@ int main(){
 	
 	gantt.push_back(idle);
 	
-	ready_queue.push(&process_list.at(0));
+	ready_vector.push_back(&process_list.at(0));
 	
-	while( !ready_queue.empty() ){
-		Process* current = ready_queue.front();
-		ready_queue.pop();
+	while( !ready_vector.empty() ){
 		
-
-		if(current->remaining_time <= TQ){
-			current->completion_time = gantt.back().completion_time + current->remaining_time;
-			current->remaining_time = 0;
-		}
-		else{
-			current->completion_time = gantt.back().completion_time + TQ;
-			current->remaining_time = current->remaining_time - TQ;
-		}
+//		Bubble sort based on remaining time:
+		for(int i=0; i<ready_vector.size(); i++)
+			for(int j=1; j<ready_vector.size()-i; j++)
+				if (ready_vector.at(j)->remaining_time < ready_vector.at(j-1)->remaining_time){
+					Process* temp = ready_vector.at(j);
+					ready_vector.at(j) = ready_vector.at(j-1);
+					ready_vector.at(j-1) = temp;
+				}
+			
 		
 		
-		for(Process& p: process_list){
-			if(p.arrival_time > gantt.back().completion_time && p.arrival_time <= current->completion_time ){
-				ready_queue.push(&p);
-			}
-		}
+		Process* current = ready_vector.at(0);
+		ready_vector.erase(ready_vector.begin());
 		
-		if(current->remaining_time != 0)
-			ready_queue.push(current);
+		current->completion_time = gantt.back().completion_time + 1;
+		current->remaining_time--;
+		
+		
+		for (Process& p: process_list)
+			if(p.arrival_time > gantt.back().completion_time && p.arrival_time <= current->completion_time)
+				{cout <<"here";
+				ready_vector.push_back(&p);
+				}
+		
+		
+		if (current->remaining_time != 0)
+			ready_vector.push_back(current);
 		
 		gantt.push_back(*current);
-
 		
-		if (ready_queue.empty() )
-			for (Process& p: process_list)
-				if(p.remaining_time != 0 ){
+		
+		
+		if ( ready_vector.empty() )
+			for(Process& p: process_list)
+				if(p.remaining_time != 0){
 					idle.arrival_time = gantt.back().completion_time;
 					idle.completion_time = p.arrival_time;
 					gantt.push_back(idle);
-					ready_queue.push(&p);
+					ready_vector.push_back(&p);
 					break;
 				}
 		
 	}
 	
 	
-	cout << "CPU Scheduling:" << endl << "Round Robin Scheduling:";
+	
+	cout << "CPU Scheduling:" << endl << "Shortest Job Remaining First Scheduling:";
 	
 	printf("\n\n %15s | %15s | %15s | %15s | %15s | %15s |\n\n", "Process Id",
 						"Arrival Time",
@@ -116,6 +122,7 @@ int main(){
 						"Completion Time",
 						"Turn Around T.",
 						"Waiting Time");
+	
 	
 // Bubble sort on process_id:
 
@@ -126,6 +133,9 @@ int main(){
 //				process_list.at(j) = process_list.at(j-1);
 //				process_list.at(j-1) = temp; 
 //			}
+	
+// till here
+	
 	
 	reverse( gantt.begin(), gantt.end() );
 	for(Process& process_list_p: process_list){
@@ -161,7 +171,6 @@ int main(){
 	}
 //  till here
 	
-	
 	cout << "\n\nGantt Chart:\n ";
 	for (Process& p: gantt)
 		if (p.process_id == -1){
@@ -180,6 +189,6 @@ int main(){
 	
 	
 	
-		
+	
 	return 0;
 }
