@@ -128,24 +128,17 @@ int main(){
 //			}
 	
 	reverse( gantt.begin(), gantt.end() );
-	for(Process& process_list_p: process_list){
-		
-		for(Process& gantt_p: gantt )
-			if(gantt_p.process_id == process_list_p.process_id){
-				
-				process_list_p.completion_time = gantt_p.completion_time;
-				process_list_p.turn_around_time = process_list_p.completion_time - process_list_p.arrival_time;
-				process_list_p.waiting_time = process_list_p.turn_around_time - process_list_p.burst_time;
-				
-				break;
-			}
-		
-		printf("  %14d |  %14d |  %14d |  %14d |  %14d |  %14d |\n", process_list_p.process_id,
-							process_list_p.arrival_time,
-							process_list_p.burst_time,
-							process_list_p.completion_time,
-							process_list_p.turn_around_time,
-							process_list_p.waiting_time);
+	
+	for(Process& p: process_list){
+		p.turn_around_time = p.completion_time - p.arrival_time;
+		p.waiting_time = p.turn_around_time - p.burst_time;
+	
+		printf("  %14d |  %14d |  %14d |  %14d |  %14d |  %14d |\n", p.process_id,
+							p.arrival_time,
+							p.burst_time,
+							p.completion_time,
+							p.turn_around_time,
+							p.waiting_time);
 	}
 	
 	
