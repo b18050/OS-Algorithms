@@ -1,2 +1,3 @@
 # OS Algorithms
- Here is the code for various Operating System Algorithms.
+ Here are the codes for various Operating System Algorithms.
+ in C++ or Python3
